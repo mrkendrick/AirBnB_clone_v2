@@ -31,27 +31,26 @@
 .popover {
 	list-style-type: none;
 	display: none;
-	background-color: #fafafa;
+	background-color: #FAFAFA;
 	width: 100%;
-	position: relative;
-	z-index: 2;
+
 	margin-left: -1px;
-	margin-top: 13px;
+	margin-top: 8px;
 	padding: 25px 0px;
 
 	border: 1px solid #DDDDDD;
 	border-radius: 4px;
+
+	overflow-y: auto;
 	max-height: 300px;
-	overflow: scroll;
 }
 
 .locations:hover .popover {
-	display: block;
-
+	display: inline-block;
 }
 
 .filter_amenities:hover .popover {
-	display: block;
+	display: inline-block;
 }
 
 ul {

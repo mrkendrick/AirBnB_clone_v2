@@ -1,35 +1,34 @@
 #!/usr/bin/python3
-"""This script starts a Flask web application"""
-
-from flask import Flask
-from flask import render_template
-from models import storage
+""" this module contains a script that starts a Flask web application
+    the web application must be listening on 0.0.0.0, port 5000
+    Routes: - /states_list """
+from models import *
+from models.base_model import BaseModel, Base
+from models.user import User
+from models.place import Place
 from models.state import State
-import subprocess
-
-
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
+from flask import Flask, render_template
 app = Flask(__name__)
+classes = {"Amenity": Amenity, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
 
 
 @app.route('/cities_by_states', strict_slashes=False)
 def cities_by_states():
-    """This function executes when 0.0.0.0:/5000/states_list
-    is requested
-    """
-    state_list = storage.all(State)
-    states = []
-    for value in state_list.values():
-        states.append(value)
+    """ display HTML page with list of cities """
+    states = storage.all(classes["State"]).values()
+    # ^ fetches states data from storage engine, then in line below,
+    # those states are passed into the template
     return render_template('8-cities_by_states.html', states=states)
 
 
 @app.teardown_appcontext
-def tear_down_context(exception):
-    """This function removes the current SQLAlchemy Session"""
+def remove_SQLalc_session(exception):
+    """ close storage when tear down is called """
     storage.close()
 
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
-    subprocess.run("export", "FLASK_APP=8-cities_by_state.py")
-    subprocess.run("flask run")
+    app.run(host='0.0.0.0', port=5000)

@@ -1,48 +1,41 @@
 #!/usr/bin/python3
-"""This script starts a Flask web application"""
-
-from flask import Flask
-from flask import render_template
-from models import storage
+""" this module contains a script that starts a Flask web application
+    the web application must be listening on 0.0.0.0, port 5000
+    Routes: - /states_list """
+from models import *
+from models.base_model import BaseModel, Base
+from models.user import User
+from models.place import Place
 from models.state import State
-import subprocess
-
-
+from models.city import City
+from models.amenity import Amenity
+from models.review import Review
+from flask import Flask, render_template
 app = Flask(__name__)
 
 
+classes = {"Amenity": Amenity, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
+
+
 @app.route('/states', strict_slashes=False)
-def states():
-    """This function executes when 0.0.0.0:/5000/states
-    is requested
-    """
-    state_list = storage.all(State)
-    states = []
-    for value in state_list.values():
-        states.append(value)
-    return render_template('9-states.html', states=states, id=None)
-
-
 @app.route('/states/<id>', strict_slashes=False)
-def single_state(id):
-    """This function executes when 0.0.0.0:/5000/states
-    is requested
-    """
-    state_list = storage.all(State)
-    state = {}
-    for key, value in state_list.items():
-        if value.id == id:
-            state = state_list[key]
-    return render_template('9-states.html', id=id, state=state)
+def states_by_id(id=None):
+    """ display HTML page with list of states """
+    all_states = storage.all(State)
+    if id:
+        states = all_states.get('State.{}'.format(id))
+    else:
+        states = all_states.values()
+    # ^ fetches states data from storage engine, then in line below,
+    # those states are passed into the template
+    return render_template('9-states.html', states=states)
 
 
 @app.teardown_appcontext
-def tear_down_context(exception):
-    """This function removes the current SQLAlchemy Session"""
+def remove_SQLalc_session(exception):
+    """ close storage when tear down is called """
     storage.close()
 
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
-    subprocess.run("export", "FLASK_APP=9-states.py")
-    subprocess.run("flask run")
+    app.run(host='0.0.0.0', port=5000)
