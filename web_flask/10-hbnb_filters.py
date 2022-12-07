@@ -1,36 +1,41 @@
 #!/usr/bin/python3
-""" this module contains a script that starts a Flask web application
-    the web application must be listening on 0.0.0.0, port 5000
-    Routes: - /hbnb_filters """
-from models import *
-from models.base_model import BaseModel, Base
-from models.user import User
-from models.place import Place
+"""This script starts a Flask web application"""
+
+from flask import Flask
+from flask import render_template
+from models import storage
 from models.state import State
-from models.city import City
 from models.amenity import Amenity
-from models.review import Review
-from flask import Flask, render_template
+import subprocess
+
+
 app = Flask(__name__)
-
-
-classes = {"Amenity": Amenity, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
 
 
 @app.route('/hbnb_filters', strict_slashes=False)
 def hbnb_filters():
-    """ hbnb_filters method: display HTML page state & city from DBStorage """
-    states = storage.all(State).values()
-    ameninities = storage.all(Amenity).values()
-    return (render_template('10-hbnb_filters.html', states=states,
-                            amenities=ameninities))
+    """This function executes when 0.0.0.0:/5000/states_list
+    is requested
+    """
+    state_list = storage.all(State)
+    amenity_list = storage.all(Amenity)
+    states = []
+    amenities = []
+    for value in state_list.values():
+        states.append(value)
+    for value in amenity_list.values():
+        amenities.append(value)
+    return render_template('10-hbnb_filters.html',
+                           states=states, amenities=amenities)
 
 
 @app.teardown_appcontext
-def remove_SQLalc_session(exception):
-    """ close storage when tear down is called """
+def tear_down_context(exception):
+    """This function removes the current SQLAlchemy Session"""
     storage.close()
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0')
+    subprocess.run("export", "FLASK_APP=10-hbnb_filters.py")
+    subprocess.run("flask run")

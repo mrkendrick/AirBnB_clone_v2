@@ -1,48 +1,45 @@
 #!/usr/bin/python3
-""" script that starts a Flask web application:
-    Your web application must be listening on 0.0.0.0, port 5000
-    Routes: 1- /: display “Hello HBNB!”
-            2- /hbnb: display “HBNB”
-            3- /c/<text>: display “C ” followed by the value of the text
-                variable (replace underscore _ symbols with a space )
-            4- /python/(<text>): display “Python ”, followed by the value of...
-                the text variable (replace underscore _ symbols with a space )
-                The default value of text is “is cool”
-    You must use the option strict_slashes=False in your route definition """
+"""This script starts a Flask web application"""
+
+
 from flask import Flask
+import subprocess
+
+
 app = Flask(__name__)
 
 
 @app.route('/', strict_slashes=False)
-def hello_hbnb():
-    """ hello_hbnb method """
-    return ('Hello HBNB!')
+def hello_world():
+    """This function executes when the 0.0.0.0:5000/ is requested"""
+    return 'Hello HBNB!'
 
 
 @app.route('/hbnb', strict_slashes=False)
-def only_hbnb():
-    """ only_hbnb method: """
-    return ('HBNB')
+def hbnb():
+    """This function executes when 0.0.0.0:5000/hbnb is requested"""
+    return 'HBNB'
 
 
 @app.route('/c/<text>', strict_slashes=False)
-def only_c(text):
-    """ only_c method: route to return C followed by text variable, replaces _
-        with spaces """
-    text = text.replace('_', ' ')
-    return ('C' + ' ' + text)
+def c_route(text):
+    """This function executes when 0.0.0.0:/5000/c/<text>
+    is requested
+    """
+    new_text = text.replace("_", " ")
+    return 'C ' + new_text
 
 
-@app.route('/python', strict_slashes=False)
-@app.route('/python/<path:text>', strict_slashes=False)
-def only_python(text=None):
-    """ only_python method: route to return text follow by "is cool"
-        (can be overwritten), replaces _ with spaces """
-    if text is None:
-        text = 'is cool'
-    else:
-        text = text.replace('_', ' ')
-    return ('Python' + ' ' + text)
+@app.route('/python', defaults={'text': 'is cool'}, strict_slashes=False)
+@app.route('/python/<text>', strict_slashes=False)
+def python(text):
+    """This function executes when 0.0.0.0:/5000/python/<text>
+    is requested
+    """
+    return 'Python ' + text.replace("_", " ")
+
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0')
+    subprocess.run("export", "FLASK_APP=3-python_route.py")
+    subprocess.run("flask run")
